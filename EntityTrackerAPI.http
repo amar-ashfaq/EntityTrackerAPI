@@ -1,0 +1,6 @@
+@EntityTrackerAPI_HostAddress = http://localhost:5073
+
+GET {{EntityTrackerAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
