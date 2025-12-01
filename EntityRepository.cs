@@ -2,7 +2,7 @@
 
 namespace EntityTrackerAPI
 {
-    public class EntityDAL : IEntityDAL
+    public class EntityRepository : IEntityRepository
     {
         private readonly List<Entity> entities =
         [

@@ -2,7 +2,7 @@
 
 namespace EntityTrackerAPI
 {
-    public interface IEntityDAL
+    public interface IEntityRepository
     {
         List<Entity> SelectAllEntities();
         void AddEntry(Entity entity);

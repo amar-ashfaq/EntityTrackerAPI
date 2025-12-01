@@ -7,9 +7,9 @@ namespace EntityTrackerAPI.Controllers
     [ApiController]
     public class EntityController : ControllerBase
     {
-        public IEntityDAL entityDAL;
+        public IEntityRepository entityDAL;
 
-        public EntityController(IEntityDAL entityDAL)
+        public EntityController(IEntityRepository entityDAL)
         {
             this.entityDAL = entityDAL;
         }
@@ -108,6 +108,5 @@ namespace EntityTrackerAPI.Controllers
             entityDAL.DeleteAll();
             return NoContent();
         }
-
     }
 }
