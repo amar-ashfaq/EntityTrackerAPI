@@ -1,4 +1,5 @@
 ﻿using EntityTrackerAPI.Entities;
+using EntityTrackerAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EntityTrackerAPI.Controllers
@@ -7,105 +8,84 @@ namespace EntityTrackerAPI.Controllers
     [ApiController]
     public class EntityController : ControllerBase
     {
-        public IEntityRepository entityDAL;
+        public IEntityService entityService;
 
-        public EntityController(IEntityRepository entityDAL)
+        public EntityController(IEntityService entityService)
         {
-            this.entityDAL = entityDAL;
+            this.entityService = entityService;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Entity>> GetEntities()
         {
-            var entities = entityDAL.SelectAllEntities();
-            if (entities.Count == 0)
-            {
-                return NotFound();
-            }
-
-            return Ok(entities);
+            var entities = entityService.GetAll();
+            return Ok(entities);       
         }
 
         [HttpGet("{id}")]
         public ActionResult<Entity> GetEntity(int id)
         {
-            var entities = entityDAL.SelectAllEntities();
-            var entity = entities.FirstOrDefault(x => x.Id == id);
-
-            if (entity == null)
+            try
+            {
+                var entity = entityService.GetById(id);
+                return Ok(entity);
+            }
+            catch (KeyNotFoundException) 
             {
                 return NotFound();
-            }
-
-            return Ok(entity);
+            }          
         }
 
         [HttpPost]
         public ActionResult<Entity> CreateEntity(Entity entity) {
 
-            if (entity == null)
+            try
             {
-                return BadRequest();
+                var created = entityService.Create(entity);
+                return CreatedAtAction(nameof(GetEntity), new { id = created.Id }, created);
             }
-
-            var entities = entityDAL.SelectAllEntities();
-
-            entity.Id = entities.Any() ? entities.Max(x => x.Id) + 1: 0;
-           
-            entityDAL.AddEntry(entity);
-
-            return CreatedAtAction(nameof(GetEntity), new { id = entity.Id}, entity);
+            catch (ArgumentNullException)
+            {
+                return BadRequest("Invalid entity.");
+            }
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Entity> UpdateEntity(int id, Entity entity) {
+        public IActionResult UpdateEntity(int id, Entity entity) {
 
-            if (entity == null)
+            try
             {
-                return BadRequest(); 
+                entityService.Update(id, entity);
+                return NoContent();
             }
-
-            var entities = entityDAL.SelectAllEntities();
-            var existing = entities.FirstOrDefault(x => x.Id == id);
-
-            if (existing == null)
+            catch (ArgumentNullException)
+            {
+                return BadRequest("Invalid entity.");
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-            
-            entity.Id = id;
-            entityDAL.UpdateEntry(entity);
-
-            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteEntity(int id)
+        public IActionResult DeleteEntity(int id)
         {
-            var entities = entityDAL.SelectAllEntities();
-            var existing = entities.FirstOrDefault(x => x.Id == id);
-
-            if (existing == null)
+            try
+            {
+                entityService.Delete(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-
-            entityDAL.DeleteEntry(id);
-
-            return NoContent();
         }
 
         [HttpDelete]
-        public ActionResult DeleteEntities()
+        public IActionResult DeleteEntities()
         {
-            var entities = entityDAL.SelectAllEntities();
-
-            if (!entities.Any())
-            {
-                return NoContent();
-            }
-
-            entityDAL.DeleteAll();
+            entityService.DeleteAll();
             return NoContent();
         }
     }

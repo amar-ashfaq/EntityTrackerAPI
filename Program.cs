@@ -1,4 +1,5 @@
-using EntityTrackerAPI;
+using EntityTrackerAPI.Repositories;
+using EntityTrackerAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<IEntityRepository, EntityRepository>();
+builder.Services.AddScoped<IEntityService, EntityService>();
 
 var app = builder.Build();
 
